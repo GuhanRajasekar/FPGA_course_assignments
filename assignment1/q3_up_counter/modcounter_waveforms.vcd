@@ -1,0 +1,187 @@
+$date
+	Fri Jan 26 21:27:37 2024
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1s
+$end
+$scope module modcounter_tb $end
+$var wire 4 ! count [3:0] $end
+$var reg 1 " clk $end
+$var reg 3 # ctrl [2:0] $end
+$var reg 4 $ data [3:0] $end
+$scope module m1 $end
+$var wire 1 " clk $end
+$var wire 3 % ctrl [2:0] $end
+$var wire 4 & data [3:0] $end
+$var reg 4 ' count [3:0] $end
+$var reg 1 ( flag $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+$dumpvars
+0(
+bx '
+bx &
+bx %
+bx $
+bx #
+0"
+bx !
+$end
+#2
+1"
+#4
+0"
+#5
+b100 $
+b100 &
+b0 #
+b0 %
+#6
+b0 !
+b0 '
+1"
+#8
+0"
+#10
+b1 !
+b1 '
+1"
+b10 #
+b10 %
+#12
+0"
+#14
+b10 !
+b10 '
+1"
+#16
+0"
+#18
+b11 !
+b11 '
+1"
+#20
+0"
+b100 #
+b100 %
+#22
+b100 !
+b100 '
+1"
+#24
+0"
+#26
+b101 !
+b101 '
+1"
+#28
+0"
+#30
+b110 !
+b110 '
+1"
+#32
+0"
+#34
+b101 !
+b101 '
+1(
+1"
+#36
+0"
+#38
+b100 !
+b100 '
+1"
+#40
+0"
+#42
+b11 !
+b11 '
+1"
+#44
+0"
+#46
+b10 !
+b10 '
+1"
+#48
+0"
+#50
+b1 !
+b1 '
+1"
+#52
+0"
+#54
+b0 !
+b0 '
+1"
+#56
+0"
+#58
+0(
+b1 !
+b1 '
+1"
+#60
+0"
+#62
+b10 !
+b10 '
+1"
+#64
+0"
+#66
+b11 !
+b11 '
+1"
+#68
+0"
+#70
+b100 !
+b100 '
+1"
+#72
+0"
+#74
+b101 !
+b101 '
+1"
+#76
+0"
+#78
+b110 !
+b110 '
+1"
+#80
+0"
+#82
+b101 !
+b101 '
+1(
+1"
+#84
+0"
+#86
+b100 !
+b100 '
+1"
+#88
+0"
+#90
+b11 !
+b11 '
+1"
+#92
+0"
+#94
+b10 !
+b10 '
+1"
+#95
