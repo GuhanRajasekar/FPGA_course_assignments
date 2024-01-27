@@ -1,22 +1,28 @@
-module modcounter(clk,ctrl,data,count);
+module modcounter(clk,rst,ctrl,data,count);
    
-  input clk;
+  input clk,rst;
   input [2:0] ctrl;  // to decide what the counter must do
   input [3:0] data;
   output reg [3:0] count;
   reg flag;   // register variable to keep track of whether up count or down count needs to be performed
   parameter N = 7;  // N can go up to 16 
   
-  initial  flag  = 0; // flag initialized to 1 to indicate up count  (only for simulation)
-  
   always@(posedge clk)
     begin
-           if(ctrl == 3'b000) count <= 4'b0000;                  // ctrl = 0 => Local Synchronous reset
-      else if(ctrl == 3'b001) count <= count;                    // ctrl = 1 => hold previous value
-      else if(ctrl == 3'b010) count <= (count+1)%N;              // ctrl = 2 => up count
-      else if(ctrl == 3'b011) count <= count-1;                  // ctrl = 3 => down count
+           if(rst  == 1'b1)   
+             begin
+                count <= 4'b0000;                                // rst  = 1 => Local Synchronous reset
+                flag  <= 0;                                      // flag = 0 => Indicates Up Counting
+             end
+      else if(ctrl == 3'b000) count <= count;                    // ctrl = 0 => hold previous value
+      else if(ctrl == 3'b001) count <= (count+1)%N;              // ctrl = 1 => up count
+      else if(ctrl == 3'b010)                                    // ctrl = 2 => down count
+          begin
+             if(count == 4'b0000)   count <= N-1;
+             else                   count <= count-1;
+          end
            
-      else if(ctrl == 3'b100)                                    // ctrl = 4 => count up / down [first up and then down]
+      else if(ctrl == 3'b011)                                    // ctrl = 3 => count up / down [first up and then down]
                begin
                  if(flag == 1'b0)                                // indicates up count (The x is for simulation purposes)
                     begin
@@ -39,7 +45,7 @@ module modcounter(clk,ctrl,data,count);
                     end 
                end
            
-      else if(ctrl == 3'b101) count <= data;                     // ctrl = 5 => load data
-      else                    count <= count;                    // Just hold the data  for ctrl = 6,7
+      else if(ctrl == 3'b100) count <= data;                     // ctrl = 4 => load data
+      else                    count <= count;                    // Just hold the data  for ctrl = 5,6,7
     end
 endmodule
