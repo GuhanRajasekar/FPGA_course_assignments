@@ -1,4 +1,4 @@
-module mux_tb_juice;
+module mux_tb;
   reg [3:0] data;
   reg [1:0] sel;
   wire y;
