@@ -1,5 +1,4 @@
 module modcounter(clk,rst,ctrl,data,count);
-   
   input clk,rst;
   input [2:0] ctrl;               // to decide what the counter must do
   input [3:0] data;               // To store the value that must be 'loaded' into the counter
@@ -14,31 +13,35 @@ module modcounter(clk,rst,ctrl,data,count);
   // Recommended to use non-blocking assignments inside a clocked always block
   always@(posedge clk)
      begin
-       if(rst <= 0) // Active Low Reset
+       if(rst == 0) // Active Low Reset
           begin
-             flag  <= 0;   // Reset the value of the register variable flag
              count <= 0;   // Reset the value of the register variable count
           end
-       else count <= count_next;  // Update the count value
+       else  count <= count_next;  // Update the count value
      end
-     
+
+// Separate always block to take care of "flag" handling
+// Updating the flag content to make sure that it is always updated
+always@(posedge clk)
+  begin
+    if(rst == 0)         flag <= 0;
+    else 
+      begin
+        if(count == 0)   flag <= 0;
+        if(count == N-1) flag <= 1;
+      end
+  end
+  
   
   // Count generation block (Done within a combinational always block)
   // Recommended to use blocking assignments inside a combinational always block
   always@(*)
     begin
-      if(ctrl == 3'b000)       count_next =  count;                                        // ctrl = 0 => hold previous value
-      else if(ctrl == 3'b001)  count_next =  (count == N-1) ? 0     : (count + 1);         // ctrl = 1 => Up Count
-      else if(ctrl == 3'b010)  count_next =  (count == 0)   ? (N-1) : (count - 1);         // ctrl = 2 => Down Count   
-      else if(ctrl == 3'b011)                                                              // ctrl = 3 => count up / down [first up and then down]
-        begin  
-           // Set appropriate value to flag
-           if((flag == 0) && (count == N-1))    flag = 1;                                  // Set flag to 1 to indicate down count must happen
-           else if((flag == 1) && (count == 0)) flag = 0;                                  // Set flag to 0 to indicate up count must happen
-           else                                 flag = flag;                               // Simply retain the value of flag (This condition is mentioned just to avoid unintentional latch creation)    
-           count_next = (flag == 0) ? (count + 1) : (count - 1);                           // Up date the value of the next count based on the value of the flag   
-        end           
-      else if(ctrl == 3'b100) count_next = data;                                           // ctrl = 4 => load data
-      else                    count_next = count;                                          // Just hold the data  for ctrl = 5,6,7 (To avoid unintentional latch creation)
+      if(ctrl == 0)       count_next = count;                                        // ctrl = 0 => hold previous value
+      else if(ctrl == 1)  count_next = (count == N-1) ? 0     : (count + 1);         // ctrl = 1 => Up Count
+      else if(ctrl == 2)  count_next = (count == 0)   ? (N-1) : (count - 1);         // ctrl = 2 => Down Count   
+      else if(ctrl == 3)  count_next = (flag == 0) ? (count + 1) : (count-1);
+      else if(ctrl == 4)  count_next = data;                                        // ctrl = 4 => load data
+      else                count_next = count;                                       // Just hold the data  for ctrl = 5,6,7 (To avoid unintentional latch creation)
     end
 endmodule
