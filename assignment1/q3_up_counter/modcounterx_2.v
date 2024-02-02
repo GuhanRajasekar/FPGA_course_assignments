@@ -1,15 +1,15 @@
 `timescale 10ns/10ps
-module modcounter(clk,rst,ctrl,data,count);
+module modcounter #(parameter N = 10)(clk,rst,ctrl,data,count,t_count);
   input clk,rst;
-  input [2:0] ctrl;               // to decide what the counter must do
-  input [3:0] data;               // To store the value that must be 'loaded' into the counter
-  output reg [3:0] count;         // Outpur register variable that stores the current count value
-//  reg clk2;                       // scaled down version of the clock signal
-//  reg [27:0] clk2_count;          // register to count the values to scale down the clock signal
-  reg flag_clk;                   // flag that is updated in the clocked always block
-  reg flag_comb;                  // flag that is updated in the combinational always block
-  reg[3:0] count_next;            // Intermediate register variable that stores the next value of the count
-  parameter N = 7;                // N can go up to 16 
+  input [2:0] ctrl;                 // to decide what the counter must do
+  input [3:0] data;                 // To store the value that must be 'loaded' into the counter
+  output reg [3:0] count;           // Outpur register variable that stores the current count value
+  output reg [15:0] t_count;        // register variable to give thermometric count for better visualization
+  
+
+  reg flag_clk;                     // flag that is updated in the clocked always block
+  reg flag_comb;                    // flag that is updated in the combinational always block
+  reg[3:0] count_next;              // Intermediate register variable that stores the next value of the count
 
 always@(posedge clk)
   begin
@@ -50,4 +50,29 @@ always@(*)
          default: count_next = count;                                        // ctrl = 4,5,6,7 => Hold the data 
        endcase
     end
+
+   always@(*)
+     begin
+       case(count)
+        0: t_count = 0;
+        1: t_count = 1;   // 0000 0000 0000 0001 => 1
+        2: t_count = 3;   // 0000 0000 0000 0011 => 3
+        3: t_count = 7;   // 0000 0000 0000 0111 => 7
+        4: t_count = 15;  // 0000 0000 0000 1111 => 15
+        5: t_count = 31;  // 0000 0000 0001 1111 => 1F
+        6: t_count = 63;  // 0000 0000 0011 1111 => 3F
+        7: t_count = 127; // 0000 0000 0111 1111 => 7F
+        8: t_count = 255; // 0000 0000 1111 1111 => FF
+        9: t_count = 511;  // 0000 0001 1111 1111 => 1FF
+        10: t_count = 1023; // 0000 0011 1111 1111 => 3FF
+        11: t_count = 2047; // 0000 0111 1111 1111 => 7FF
+        12: t_count = 4095; // 0000 1111 1111 1111 => FFF
+        13: t_count = 8191; // 0001 1111 1111 1111 => 1FFF
+        14: t_count = 16383; // 0011 1111 1111 1111  => 3FFF
+        15: t_count = 31767; // 0111 1111 1111 1111 => 7FFF
+        16: t_count = 65535; // 1111 1111 1111 1111 => FFFF
+        default : t_count = 0; 
+      endcase
+    end
 endmodule
+
