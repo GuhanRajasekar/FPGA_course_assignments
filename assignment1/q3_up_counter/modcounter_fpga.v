@@ -1,5 +1,5 @@
 `timescale 1s/10ps
-module modcounter #(parameter N = 10)(clk,rst,ctrl,data,count,t_count);
+module modcounter #(parameter N = 16)(clk,rst,ctrl,data,count,t_count);
   input clk,rst;
   input [2:0] ctrl;                 // to decide what the counter must do
   input [3:0] data;                 // To store the value that must be 'loaded' into the counter
@@ -19,15 +19,15 @@ module modcounter #(parameter N = 10)(clk,rst,ctrl,data,count,t_count);
 // Counting action to perform the downscaling of the clock signal
 always@(*)
 begin
-  if(clk2count_clk == 50000000) clk2count_comb = 0;
-  else                          clk2count_comb = clk2count_clk + 1;
+  if(clk2count_clk == 100000000) clk2count_comb = 0;
+  else                           clk2count_comb = clk2count_clk + 1;
 end
 
 always@(posedge clk)
   begin         
      clk2count_clk <= clk2count_comb;
-     if(clk2count_comb == 50000000) clk2 <= ~clk2; // toggle the clock after 50000000 cycles
-     else                           clk2 <=  clk2; // retain the value if those number of cycles has not been reached
+     if(clk2count_comb <= 50000000) clk2 <= 0; 
+     else                           clk2 <= 1;
   end
 
 
@@ -89,8 +89,7 @@ always@(*)
         12: t_count = 4095; // 0000 1111 1111 1111 => FFF
         13: t_count = 8191; // 0001 1111 1111 1111 => 1FFF
         14: t_count = 16383; // 0011 1111 1111 1111  => 3FFF
-        15: t_count = 31767; // 0111 1111 1111 1111 => 7FFF
-        16: t_count = 65535; // 1111 1111 1111 1111 => FFFF
+        15: t_count = 32767; // 0111 1111 1111 1111 => 7FFF
         default : t_count = 0; 
       endcase
     end
