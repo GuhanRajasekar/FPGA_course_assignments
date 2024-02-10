@@ -11,6 +11,7 @@ module cla_testbench;
       $dumpfile ("cla_waveforms.vcd");
       $dumpvars (0,cla_testbench);
       $monitor($time, " a=%b,b=%b,cin=%b, s=%b,co=%b ",a,b,cin,so,co);
+      #0 a = 1; b = 7;  cin = 1;
       #5 a = 0; b = 2;  cin = 0;
       #5 a = 1; b = 3;  cin = 1;
       #5 a = 5; b = 10; cin = 0;
