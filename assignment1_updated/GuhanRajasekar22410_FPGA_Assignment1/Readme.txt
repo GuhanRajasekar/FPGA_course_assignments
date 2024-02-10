@@ -1,0 +1,1 @@
+Here the file titles "GuhanRajasekar_22410_Counter_simulation.v" contains the counter code that was used for simulation purposes and the file "GuhanRajasekar_22410_Counter_FPGA.v" contains the code that was used for implementing the counter on FPGA.
