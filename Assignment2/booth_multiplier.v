@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 module genPP(a,x,pp);
 input  [2:0]   a;  // register to store 3 bits of the mutiplicand based on which Partial product is generated
 input  [7:0]   x;  // register to store the multiplcand

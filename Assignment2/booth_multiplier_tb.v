@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 module booth_multiplier_tb;
  reg    [7:0] x,y;    // Inputs in the test bench must be registers as they are given values inside the initial block
  reg    clk, rst;     // Register inputs for clock and reset
@@ -13,8 +14,8 @@ module booth_multiplier_tb;
    begin
       # 0 clk = 1'b0;  rst = 1'b0;
       $monitor(" time =%d , x = %b , y = %b, result = %b , carry = %b",$time,x,y,result,carry);
-      #1  rst = 1'b1; x = 8'b00001101; y = 8'b10010111;
-      #10 $finish;
+      #100  rst = 1'b1; x = 8'b00001101; y = 8'b10010111;
+      #200 $finish;
    end
 
 endmodule
