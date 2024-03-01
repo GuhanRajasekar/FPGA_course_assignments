@@ -14,8 +14,13 @@ module booth_multiplier_tb;
    begin
       # 0 clk = 1'b0;  rst = 1'b0;
       $monitor(" time =%d , x = %b , y = %b, result = %b , carry = %b",$time,x,y,result,carry);
-      #100  rst = 1'b1; x = 8'b11111111; y = 8'b00000000;
-      #200 $finish;
+      #100  rst = 1'b1; x = 8'b11111111; y = 8'b10000000;
+      #100  rst = 1'b1; x = 8'b10111111; y = 8'b10000000;
+      #100  rst = 1'b1; x = 8'b11011111; y = 8'b01100000;
+      #100  rst = 1'b1; x = 8'b11101101; y = 8'b00010000;
+      #100  rst = 1'b1; x = 8'b01110111; y = 8'b01100000;
+      #100  rst = 1'b1; x = 8'b10001111; y = 8'b10001000;
+      #100 $finish;
    end
 
 endmodule

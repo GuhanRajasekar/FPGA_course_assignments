@@ -2,9 +2,9 @@
 module genPP(a,x,pp);
 input  [2:0]   a;     // register to store 3 bits of the mutiplicand based on which Partial product is generated
 input  [7:0]   x;     // register to store the multiplcand
-output reg [9:0] pp;  //  8 bit register to store the partial product
+output reg [9:0] pp;  // 10 bit register to store the partial product (10 bits helps us handle corner cases)
 reg [9:0] temp;       // register to hold temporary values
-reg [7:0] temp1;
+reg [7:0] temp1;      // register to hold temporary values
 
 always@(*)
   begin
@@ -12,7 +12,7 @@ always@(*)
        3'b000: pp[9:0] = {10{1'b0}};      // 0
        3'b001: pp[9:0] = {{2{x[7]}},x};   // x with 2 bits sign extension
        3'b010: pp[9:0] = {{2{x[7]}},x};   // x with 2 bits sign extension
-       3'b011: pp[9:0] = {x[7],x,1'b0};   // 2x
+       3'b011: pp[9:0] = {x[7],x,1'b0};   // 2x with 1 bit sign extension
        3'b100:
           begin
                temp = {x[7],x,1'b0};   // 2x
@@ -37,14 +37,13 @@ endmodule
 
 
 module booth_multiplier(x,y,clk,rst,result,carry);
-  input [7:0]  x;   // register to store the multiplicand
-  input [7:0]  y;   // register to store the multiplier
-  input clk,rst;     //
+  input [7:0]  x;    // register to store the multiplicand
+  input [7:0]  y;    // register to store the multiplier
+  input clk,rst;     // wires that are driven by clk and reset signals
   output reg  [15:0] result;   // register to store the final result
   output reg  carry;
   
   // 10 bit wires to denote the temporary partial products
-  // These partial products do not have sign extension or zero padding at LSB
   // Having it as 10 bits will help us avoid losing the MSB with Left Shifting
   // When MSB of 1 is left shifted and if it is lost, we may end up with wrong results
   wire [9:0] pp0_temp , pp1_temp , pp2_temp , pp3_temp;
