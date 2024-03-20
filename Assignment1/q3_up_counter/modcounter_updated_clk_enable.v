@@ -17,6 +17,8 @@ module modcounter #(parameter N = 16)(clk,rst,ctrl,data,t_count);
 
 
 // Counting action to perform the downscaling of the clock signal
+// clk2count_comb will be incremented once in every 10ns
+// 10^8 counts of the 10ns clock signal will contribute to 1s
 always@(*)
 begin
   if(clk2count_clk == 100000000) clk2count_comb = 0;
@@ -24,16 +26,22 @@ begin
 end
 
 always@(posedge clk)
-  begin         
-     clk2count_clk <= clk2count_comb;
-     if(clk2count_comb <= 50000000) clk2 <= 0; 
-     else                           clk2 <= 1;
+  begin
+     if(rst == 0) clk2count_clk <= 0;
+     else 
+       begin
+         clk2count_clk <= clk2count_comb;
+//         if(clk2count_comb <= 50000000) clk2 <= 0; 
+//         else                           clk2 <= 1;
+         if(clk2count_comb == 1)          clk2 <= 1;
+         else                             clk2 <= 0;
+       end
   end
 
 
 // Running the sequential circuit using the downscaled clock signal
-always@(posedge clk2)
-begin
+always@(posedge clk)
+ begin
   if(rst == 0)
     begin
       flag_clk <= 0;
@@ -41,10 +49,13 @@ begin
     end
   else
     begin
-      flag_clk <= flag_comb; 
-      count    <= count_next;
-    end
-end
+     if(clk2 == 1)
+       begin
+           flag_clk <= flag_comb; 
+           count    <= count_next;
+       end
+    end   
+ end
 
 // always block to take care of flag updation
 always@(*)
@@ -66,7 +77,7 @@ always@(*)
          0: count_next = (count == N-1) ? 0 : (count + 1);                   // ctrl = 0 => Up Count
          1: count_next = (count == 0)? (N-1): (count-1);                     // ctrl = 1 => Down Count
          2: count_next = (flag_comb == 0) ? (count + 1) : (count - 1);       // ctrl = 2 => Up/Down count
-         3: count_next = (data < N) ? data : 0;                                               // ctrl = 3 => Load Data
+         3: count_next = (data < N) ? data : 0;                              // ctrl = 3 => Load Data
          default: count_next = count;                                        // ctrl = 4,5,6,7 => Hold the data 
        endcase
     end
