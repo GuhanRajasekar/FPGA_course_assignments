@@ -15,7 +15,7 @@ module modcounter #(parameter N = 16)(clk,clk2,rst,ctrl,data,t_count);
   reg[3:0] count_next;              // Intermediate register variable that stores the next value of the count
   
   reg syn1, syn2;    // Register variables to implement the two stage synchronizer
-  reg debounce_flag; // register variable to check if synchronizer output is stable after passing through the debouncer circuit
+  reg debounce_cleared; // register variable to check if synchronizer output is stable after passing through the debouncer circuit
 
 // clk2 is an asynchronous input that comes from button press
 // two stage synchronizer for clk2
@@ -36,20 +36,24 @@ always@(posedge clk)
 //debouncing circuit
 always@(*)
   begin
-    if(syn2 == 1) clk2count_comb = clk2count_clk + 1; // increment the count
-    else clk2count_comb = 0; // reset the count value when syn2 is low
+    if(syn2 == 1)
+       begin
+         if(clk2count_clk >= 2000001) clk2count_comb = clk2count_clk;
+         else                         clk2count_comb = clk2count_clk + 1;
+       end
+    else  clk2count_comb = 0;
   end
 
 // combinational always block to set the status of the debounce flag based on the value of the synchronizer output
 always@(*)
-    if(clk2count_comb == 2000000) debounce_flag = (syn2==1) ? 1 : 0;
-    else                          debounce_flag = 0;
+    if(clk2count_comb == 2000000) debounce_cleared = (syn2==1) ? 1 : 0;  // debouncing overcome => Consider as a valid button press
+    else                          debounce_cleared = 0;                  // Not a valid button press
 
 // Updating the count value of the saturating counter of 20ms
 always@(posedge clk)
  begin
-  if(rst == 0) clk2count_clk <= 0;
-  else         clk2count_clk <= clk2count_comb;   
+  if(rst == 0)  clk2count_clk <= 0;
+  else          clk2count_clk <= clk2count_comb;   
  end
  
 //sequential always block to take care of updating the count value using the output of the debouncer circuit
@@ -62,7 +66,7 @@ always@(posedge clk)
         end
       else
         begin
-         if(debounce_flag == 1)
+         if(debounce_cleared == 1)
            begin
              flag_clk <= flag_comb; 
              count    <= count_next;
