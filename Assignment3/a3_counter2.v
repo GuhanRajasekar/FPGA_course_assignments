@@ -33,11 +33,13 @@ always@(posedge clk)
        end
   end
 
-//debouncing circuit
+//debouncing circuit (saturating counter)
 always@(*)
   begin
     if(syn2 == 1)
        begin
+         // Freeze the counter when it goes one count above [ 2* (10^6) ]  
+         // This is to make sure that count is incremented or decremented only once even if switch is continuosly pressed without the user releasing it. 
          if(clk2count_clk >= 2000001) clk2count_comb = clk2count_clk;
          else                         clk2count_comb = clk2count_clk + 1;
        end
@@ -79,7 +81,8 @@ always@(posedge clk)
          end    
   end
  
-// always block to take care of flag updation
+// always block to make sure that flag is updated
+// This flag is used to make sure that "up-down" count feature is reliable. 
 always@(*)
   begin
    if(ctrl == 2)
