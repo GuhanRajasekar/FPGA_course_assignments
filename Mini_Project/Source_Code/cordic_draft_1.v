@@ -101,3 +101,5 @@ always@(*)
       y_res [19:0] = y[9][19:0];
    end
 endmodule
+
+// We still need to take care of the edge cases of 0 degrees and 90 degrees
