@@ -1,8 +1,14 @@
-module cordic(target_angle);
- // taking k (scaling factor) as 0.6072
- input target_angle;
- reg signed [5:0] x   [9:0];  // to store the x-coordinates of each step (2 bits for the integer part including MSB and 4 bits for the fractional part)
- reg signed [5:0] y   [9:0];  // to store the y-coordinates of each step (2 bits for the integer part including MSB and 4 bits for the fractional part)
+module cordic(target_angle,x_res,y_res);
+
+// Apparently verilog does not support two dimensional arrays as ports (system verilog does)
+// However, let us see if this works for simulation
+
+ input signed [19:0] target_angle;   // 20 bits to denote the target angle of rotation (16 bits including MSB for the integer part and 4 bits for the fractional part)
+ output reg signed [5:0] x_res; // 6 bits (2 for integer part and 16 for fractional part) to store the x-coordinate of the final rotated vector
+ output reg signed [5:0] y_res; // 6 bits (2 for integer part and 16 for fractional part) to store the y-coordinate of the final rotated vector
+ 
+ reg signed [5:0] x [9:0];  // to store the x-coordinates of each step (2 bits for the integer part including MSB and 16 bits for the fractional part)
+ reg signed [5:0] y [9:0];  // to store the y-coordinates of each step (2 bits for the integer part including MSB and 16 bits for the fractional part)
  
  wire signed[19:0] arc_tan [9:0];       // to store look up values of arc tan using 20 bits (16 bits including MSB to denote the integer part and 4 bits to denote the fractional part)
  reg  signed[19:0] rotation_angle[9:0];  // Array of 20 bit registers to store the rotated angle 
@@ -18,13 +24,14 @@ module cordic(target_angle);
  assign arc_tan[7] = {{6{1'b0}},10'b0000000000,4'b1110};   // 0.8951  degrees
  assign arc_tan[8] = {{6{1'b0}},10'b0000000000,4'b0111};   // 0.4476  degrees
  assign arc_tan[9] = {{6{1'b0}},10'b0000000000,4'b0011};   // 0.2238  degrees
- assign arc_tan[10] = {{6{1'b0}},10'b0000000000,4'b0001};   // 0.1119  degrees
+ assign arc_tan[10] ={{6{1'b0}},10'b0000000000,4'b0001};   // 0.1119  degrees
  
  always@(*)
    begin
 // iteration 0:
-      x[0] = 6'b001001 ; // x[0] = 0.6072 (2 bits for the integer part and 4 bits for the fractional part)
-      y[0] = 6'b000000 ; // y[0] = 0.0000 (2 bits for the integer part and 4 bits for the fractional part)
+      // taking k (scaling factor) as 0.6072
+      x[0] = 6'b001001; // x[0] = 0.6072 (2 bits for the integer part and 10 bits for the fractional part)
+      y[0] = 6'b000000; // y[0] = 0.0000 (2 bits for the integer part and 10 bits for the fractional part)
       rotation_angle[0] = arc_tan[0]; // First we always rotate by 0 degrees => Update the rotated angle accordingly
       /* For the first time, rotation direction is always 1 assuming the target angle is between 0 and 90 */
       rotation_direction[0] = (rotation_angle[0] < target_angle) ? 1 : 0 ;
@@ -40,12 +47,16 @@ module cordic(target_angle);
       rotation_direction[1] = (rotation_angle[1] < target_angle) ? 1 : 0 ;
          
 //iteration 2
-      x[2] = (rotation_direction[0] == 1) ? (x[1] - (y[1]>>>1)) : (x[1] + (y[1]>>>1));
-      y[2] = (rotation_direction[0] == 1) ? (y[1] + (x[1]>>>1)) : (y[1] - (x[1]>>>1));
+      x[2] = (rotation_direction[1] == 1) ? (x[1] - (y[1]>>>1)) : (x[1] + (y[1]>>>1));
+      y[2] = (rotation_direction[1] == 1) ? (y[1] + (x[1]>>>1)) : (y[1] - (x[1]>>>1));
       rotation_angle[2]     = (rotation_direction[1] == 1) ? (rotation_angle[1] + arc_tan[2]) : (rotation_angle[1] - arc_tan[2]);
       rotation_direction[2] = (rotation_angle[2] < target_angle) ? 1:0;
       
 //iteration 3
+      x[3] = (rotation_direction[2] == 1) ? (x[2] - (y[2]>>>2)) : (x[2] + (y[2]>>>2));
+      y[3] = (rotation_direction[2] == 1) ? (y[2] + (x[2]>>>2)) : (y[2] + (x[2]>>>2));
+      rotation_angle[3]     = (rotation_direction[2] == 1) ? (rotation_angle[2] + arc_tan[3]) : (rotation_angle[2] - arc_tan[3]);
+      rotation_direction[3] = (rotation_angle[3] < target_angle) ? 1:0;
 //iteration 4
 //iteration 5
 //iteration 6
