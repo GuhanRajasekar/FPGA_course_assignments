@@ -29,9 +29,15 @@ module cordic_sin_cos(clk,rst,target_angle,x_res,y_res);
  input signed [19:0] target_angle;   // 20 bits to denote the target angle of rotation (16 bits including MSB for the integer part and 4 bits for the fractional part)
  reg signed [19:0] target_angle_clk; // register variable to receive the target angle from the user 
  
+ wire signed [19:0] target_angle_conv;   // 20 bits to denote the target angle of rotation (16 bits including MSB for the integer part and 4 bits for the fractional part)
+ wire [2:0] quadrant_loc; // the quadrant in which the target angle is located
+  
  output reg signed [19:0] x_res; // 20 bits (4 for integer part and 16 for fractional part) to store the x-coordinate of the final rotated vector
  output reg signed [19:0] y_res; // 20 bits (4 for integer part and 16 for fractional part) to store the y-coordinate of the final rotated vector
 // output reg [19:0] final_rotation_angle; // dummy output register to overcome RTL error 
+ 
+ wire signed [19:0] x_res_comb; // 20 bits (4 for integer part and 16 for fractional part) to store the x-coordinate of the final rotated vector
+ wire signed [19:0] y_res_comb; // 20 bits (4 for integer part and 16 for fractional part) to store the y-coordinate of the final rotated vector
  
  reg signed [19:0] x [9:0];  // to store the x-coordinates of each step (4 bits for the integer part including MSB and 16 bits for the fractional part)
  reg signed [19:0] y [9:0];  // to store the y-coordinates of each step (4 bits for the integer part including MSB and 16 bits for the fractional part)
@@ -50,6 +56,8 @@ module cordic_sin_cos(clk,rst,target_angle,x_res,y_res);
  assign arc_tan[7] = {{6{1'b0}},10'b0000000000,4'b0111};   // 0.4476  degrees
  assign arc_tan[8] = {{6{1'b0}},10'b0000000000,4'b0011};   // 0.2238  degrees
 // assign arc_tan[9] = {{6{1'b0}},10'b0000000000,4'b0001};   // 0.1119  degrees
+ get_conv_target_angle conv_angle(.target_angle(target_angle),.target_angle_conv(target_angle_conv),.quadrant_loc(quadrant_loc));
+ output_mapping out_map(.x(x[9][19:0]),.y(y[9][19:0]),.quadrant_loc(quadrant_loc),.x_res(x_res_comb),.y_res(y_res_comb));
  
  always@(posedge clk)
   begin
@@ -60,9 +68,9 @@ module cordic_sin_cos(clk,rst,target_angle,x_res,y_res);
        end 
     else 
        begin
-         target_angle_clk <= target_angle; // target_angle_clk <= target_angle_conv; 
-         x_res [19:0] <= x[9][19:0];
-         y_res [19:0] <= y[9][19:0];
+         target_angle_clk <= target_angle_conv; // target_angle_clk <= target_angle_conv; 
+         x_res [19:0] <= x_res_comb;
+         y_res [19:0] <= y_res_comb;
        end
   end
  
