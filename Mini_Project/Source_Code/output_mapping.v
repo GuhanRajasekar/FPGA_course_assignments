@@ -5,36 +5,21 @@ input [2:0] quadrant_loc,
 output reg signed [19:0] x_res,
 output reg signed [19:0] y_res
     );
-    always@(*)
+    
+// Updating the x values of the result
+always@(*)
     begin
-        
-//        if (quadrant_loc == 3'd1)
-//        begin
-//            x_res = x;
-//            y_res = y;
-//        end
-//        else 
-        if (quadrant_loc == 3'd2)
-        begin
-            x_res = -y;
-            y_res = x;
-        end
-        else if (quadrant_loc == 3'd3)
-        begin
-            x_res = -x;
-            y_res = -y;
-        end
-//        else if (quadrant_loc == 3'd4)
-//        begin
-//            x_res = x;
-//            y_res = y;
-//        end
-        else // including both 1st and 4th quadrant
-        begin
-            x_res = x;
-            y_res = y;
-        end
-        
+        if (quadrant_loc == 3'd2) x_res = -y;
+        else if (quadrant_loc == 3'd3) x_res = -x;
+        else  x_res = x;// including both 1st and 4th quadrant      
     end
+ 
+// Updating the y values of the result   
+ always@(*)
+   begin
+     if (quadrant_loc == 3'd2)       y_res = x;
+     else if (quadrant_loc == 3'd3)  y_res = -y;
+     else                            y_res = y; 
+   end
     
 endmodule

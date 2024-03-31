@@ -27,17 +27,17 @@ module cordic_sin_cos(clk,rst,target_angle,x_res,y_res);
 
  input clk,rst;  // Input clock and reset signals
  input signed [19:0] target_angle;   // 20 bits to denote the target angle of rotation (16 bits including MSB for the integer part and 4 bits for the fractional part)
- reg signed [19:0] target_angle_clk; // register variable to receive the target angle from the user 
  
- wire signed [19:0] target_angle_conv;   // 20 bits to denote the target angle of rotation (16 bits including MSB for the integer part and 4 bits for the fractional part)
- wire [2:0] quadrant_loc; // the quadrant in which the target angle is located
-  
+ 
  output reg signed [19:0] x_res; // 20 bits (4 for integer part and 16 for fractional part) to store the x-coordinate of the final rotated vector
  output reg signed [19:0] y_res; // 20 bits (4 for integer part and 16 for fractional part) to store the y-coordinate of the final rotated vector
 // output reg [19:0] final_rotation_angle; // dummy output register to overcome RTL error 
  
  wire signed [19:0] x_res_comb; // 20 bits (4 for integer part and 16 for fractional part) to store the x-coordinate of the final rotated vector
  wire signed [19:0] y_res_comb; // 20 bits (4 for integer part and 16 for fractional part) to store the y-coordinate of the final rotated vector
+ reg signed [19:0] x_res_final; // 20 bits (4 for integer part and 16 for fractional part) to store the x-coordinate of the final rotated vector
+ reg signed [19:0] y_res_final; // 20 bits (4 for integer part and 16 for fractional part) to store the y-coordinate of the final rotated vector
+ 
  
  reg signed [19:0] x [9:0];  // to store the x-coordinates of each step (4 bits for the integer part including MSB and 16 bits for the fractional part)
  reg signed [19:0] y [9:0];  // to store the y-coordinates of each step (4 bits for the integer part including MSB and 16 bits for the fractional part)
@@ -46,6 +46,11 @@ module cordic_sin_cos(clk,rst,target_angle,x_res,y_res);
  reg  signed[19:0] z[8:0];  // Array of 20 bit registers to store the rotated angle 
  reg  d[8:0]; // Array of 1 bit registers to denote the direction of rotation. 1/0 => Anticlockwise / Clockwise rotation 
  
+ wire signed [19:0] target_angle_conv;  // 20 bits to denote the target angle of rotation (16 bits including MSB for the integer part and 4 bits for the fractional part) 
+ 
+ wire [2:0] quadrant_loc; // the quadrant in which the target angle is located
+ 
+
  assign arc_tan[0] = {{6{1'b0}},10'b0000101101,4'b0000};   // 45      degrees
  assign arc_tan[1] = {{6{1'b0}},10'b0000011010,4'b1001};   // 26.565  degrees
  assign arc_tan[2] = {{6{1'b0}},10'b0000001110,4'b0000};   // 14.0362 degrees
@@ -63,31 +68,28 @@ module cordic_sin_cos(clk,rst,target_angle,x_res,y_res);
   begin
     if (rst == 0)
        begin
-         x_res [19:0] <= 20'b0;
-         y_res [19:0] <= 20'b0;     
+         x_res [19:0]     <= 20'b0;
+         y_res [19:0]     <= 20'b0;  
        end 
     else 
        begin
-         target_angle_clk <= target_angle_conv; // target_angle_clk <= target_angle_conv; 
          x_res [19:0] <= x_res_comb;
          y_res [19:0] <= y_res_comb;
        end
   end
- 
- 
+
  // Place them in a separate always block as they are fixed (This helps us avoid numerous RTL errors)
  always@(*)
    begin
       x[0] = 20'b00001001101101110001; // x[0] = 0.6072 (4 bits for the integer part and 10 bits for the fractional part)
       y[0] = 20'b00000000000000000000; // y[0] = 0.0000 (4 bits for the integer part and 10 bits for the fractional part)
-      z[0] = target_angle_clk; // First we always rotate by 0 degrees => Update the rotated angle accordingly
+      z[0] = target_angle_conv; // First we always rotate by 0 degrees => Update the rotated angle accordingly
       d[0] = (z[0][19] == 0) ? 1 : 0;
    end
    
    
  always@(*)
    begin
-
 //step 1
      x[1] = (d[0] == 1) ? (x[0] - y[0]) : (x[0]+y[0]);
      y[1] = (d[0] == 1) ? (y[0] + x[0]) : (y[0]-x[0]);
@@ -145,4 +147,3 @@ module cordic_sin_cos(clk,rst,target_angle,x_res,y_res);
    end
 
 endmodule
-
