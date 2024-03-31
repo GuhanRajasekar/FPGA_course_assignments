@@ -13,8 +13,8 @@ output reg [2:0] quadrant_loc
         else if ((target_angle > {16'd270,4'd0}) && (target_angle <= {16'd360,4'd0})) target_angle_conv = target_angle - {16'd360,4'd0};
         else target_angle_conv = target_angle;
     end 
-
-// Getting the updated quadrant location
+  
+    
   always@(*)
     begin
         if ((target_angle >{16'd90,4'd0}) && (target_angle <= {16'd180,4'd0})) quadrant_loc = 3'd2;

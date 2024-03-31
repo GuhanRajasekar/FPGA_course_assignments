@@ -20,18 +20,14 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module cordic_tan_inverse(clk,rst,x_input,y_input,z_res);
+module cordic_tan_inverse(clk,rst,y_input,z_res);
 
-// Apparently verilog does not support two dimensional arrays as ports (system verilog does)
-// However, let us see if this works for simulation
 
- input clk,rst;  // Input clock and reset signals
- input signed [19:0] x_input;   // 20 bits to denote the x input(16 bits including MSB for the integer part and 4 bits for the fractional part)
+ input clk,rst;  // Input clock and reset signalsq
  input signed [19:0] y_input;   // 20 bits to denote the y input (16 bits including MSB for the integer part and 4 bits for the fractional part)
  
  output reg signed [19:0] z_res; // 20 bits (4 for integer part and 16 for fractional part) 
  
- reg signed [19:0] x_input_clk ;  // to store the x input (4 bits for the integer part including MSB and 16 bits for the fractional part)
  reg signed [19:0] y_input_clk ;  // to store the y input (4 bits for the integer part including MSB and 16 bits for the fractional part)
  
  reg signed [19:0] x [10:0];  // to store the x results of each step (4 bits for the integer part including MSB and 16 bits for the fractional part)
@@ -57,15 +53,14 @@ module cordic_tan_inverse(clk,rst,x_input,y_input,z_res);
   begin
     if (rst == 0)
       begin
-         x_input_clk     <= 20'b0;
          y_input_clk     <= 20'b0;
          z_res <= 20'b0; 
       end  
     else 
       begin
-         x_input_clk <= x_input;
          y_input_clk <= y_input;
-         z_res <= z[10][19:0]; 
+         if(y_input_clk == 0)z_res <= 20'b0;          // for 0 the result must be 0. Doing this to remove the error inherent with CORDIC
+         else                z_res <= z[10][19:0];
       end
   end
  
@@ -73,7 +68,7 @@ module cordic_tan_inverse(clk,rst,x_input,y_input,z_res);
  // Place them in a separate always block as they are fixed (This helps us avoid numerous RTL errors)
  always@(*)
    begin
-      x[0] = x_input_clk; 
+      x[0] = 20'b00000000000000010000; 
       y[0] = y_input_clk; 
       z[0] = 20'b0; 
       d[0] = ((x[0][19] ^ (y[0][19])) == 0) ? 0 : 1;  

@@ -35,9 +35,6 @@ module cordic_sin_cos(clk,rst,target_angle,x_res,y_res);
  
  wire signed [19:0] x_res_comb; // 20 bits (4 for integer part and 16 for fractional part) to store the x-coordinate of the final rotated vector
  wire signed [19:0] y_res_comb; // 20 bits (4 for integer part and 16 for fractional part) to store the y-coordinate of the final rotated vector
- reg signed [19:0] x_res_final; // 20 bits (4 for integer part and 16 for fractional part) to store the x-coordinate of the final rotated vector
- reg signed [19:0] y_res_final; // 20 bits (4 for integer part and 16 for fractional part) to store the y-coordinate of the final rotated vector
- 
  
  reg signed [19:0] x [9:0];  // to store the x-coordinates of each step (4 bits for the integer part including MSB and 16 bits for the fractional part)
  reg signed [19:0] y [9:0];  // to store the y-coordinates of each step (4 bits for the integer part including MSB and 16 bits for the fractional part)
@@ -46,7 +43,7 @@ module cordic_sin_cos(clk,rst,target_angle,x_res,y_res);
  reg  signed[19:0] z[8:0];  // Array of 20 bit registers to store the rotated angle 
  reg  d[8:0]; // Array of 1 bit registers to denote the direction of rotation. 1/0 => Anticlockwise / Clockwise rotation 
  
- wire signed [19:0] target_angle_conv;  // 20 bits to denote the target angle of rotation (16 bits including MSB for the integer part and 4 bits for the fractional part) 
+ wire signed [19:0] target_angle_conv;  // 20 bits to denote the target angle of rotation (16 bits including MSB for the integer part and 4 bits for the fractional part)
  
  wire [2:0] quadrant_loc; // the quadrant in which the target angle is located
  
