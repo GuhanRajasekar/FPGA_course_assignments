@@ -89,8 +89,9 @@ def main():
     "11110010100110011001", "11110010011110010011", "11110010010001110000", "11110010001001101001"
 ]
   
+  binary_point = 16 # number of bits from the LSB end after which the binary point is present
   for i in range(0, len(cos)):
-    cos_conv_list.append(getDecimalValue(cos[i],16))
+    cos_conv_list.append(getDecimalValue(cos[i],binary_point))
   
   x = []
   for i in range(0,len(cos)):
