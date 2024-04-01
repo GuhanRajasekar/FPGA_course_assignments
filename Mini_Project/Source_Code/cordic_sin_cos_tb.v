@@ -32,6 +32,7 @@ module cordic_sin_cos_tb;
   
   initial
      begin
+      $monitor("%b",x_res); 
        // here we define the target angle
        // 16 bits for the integer part and 4 bits for the fractional part of the target angle
        #0 clk = 1'b0; rst = 1'b0;
@@ -84,6 +85,7 @@ module cordic_sin_cos_tb;
 //            #15 target_angle = 20'b00000000001010110000; // 43 degrees
 //            #15 target_angle = 20'b00000000001011000000; // 44 degrees
 //            #15 target_angle = 20'b00000000001011010000; // 45 degrees
+
 //            #15 target_angle = 20'b00000000001011100000; // 46 degrees
 //            #15 target_angle = 20'b00000000001011110000; // 47 degrees
 //            #15 target_angle = 20'b00000000001100000000; // 48 degrees
@@ -128,7 +130,7 @@ module cordic_sin_cos_tb;
 //            #15 target_angle = 20'b00000000010101110000; // 87 degrees
 //            #15 target_angle = 20'b00000000010110000000; // 88 degrees
 //            #15 target_angle = 20'b00000000010110010000; // 89 degrees
-            #15 target_angle = 20'b00000000010110100000; // 90 degrees
+//            #15 target_angle = 20'b00000000010110100000; // 90 degrees
                         
             #15 target_angle = 20'b00000000010110110000; // 91 degrees
             #15 target_angle = 20'b00000000010111000000; // 92 degrees
@@ -191,8 +193,8 @@ module cordic_sin_cos_tb;
             #15 target_angle = 20'b00000000100101010000; // 149 degrees
             #15 target_angle = 20'b00000000100101100000; // 150 degrees
             
-            #15 target_angle = 20'b00000000101101000000; // 180 degrees
-            #15 target_angle = 20'b00000000101101010000; // 181 degrees
+//            #15 target_angle = 20'b00000000101101000000; // 180 degrees
+//            #15 target_angle = 20'b00000000101101010000; // 181 degrees
             
 
        #20 $finish;

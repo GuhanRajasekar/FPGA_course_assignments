@@ -48,8 +48,9 @@ def printValues(arr):
     print(arr[i])
 
 def main():
-  conv_list = []  #empty list
-  arr = [
+  cos_conv_list = []  #empty list
+  sin_conv_list = []
+  cos = [
     "00001111111111111000", "00001111111111101100", "00001111111111010010", "00001111111110100110", "00001111111101001010",
     "00001111111011111010", "00001111111010011010", "00001111111000101000", "00001111110101100000", "00001111110011001000",
     "00001111110000011110", "00001111101101100110", "00001111101010011101", "00001111100101010100", "00001111100001100101",
@@ -88,14 +89,17 @@ def main():
     "11110010100110011001", "11110010011110010011", "11110010010001110000", "11110010001001101001"
 ]
   
-  for i in range(0, len(arr)):
-    conv_list.append(getDecimalValue(arr[i],16))
+  for i in range(0, len(cos)):
+    cos_conv_list.append(getDecimalValue(cos[i],16))
   
   x = []
-  for i in range(0,151):
+  for i in range(0,len(cos)):
     x.append(i)
   
-  plt.plot(x,conv_list)
+  plt.plot(x,cos_conv_list)
+  plt.xlabel("theta")
+  plt.ylabel("cos theta")
+  plt.title("Cos Theta Using CORDIC")
   plt.show()
 
 if __name__ == "__main__":
