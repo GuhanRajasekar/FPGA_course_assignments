@@ -17,10 +17,12 @@ target_angle = target_angle/(2**16)
 
 plt.figure()
 plt.clf()
-plt.plot(target_angle,cosh_values_decimal)
+plt.plot(target_angle,cosh_values_decimal,'o-')
 plt.xlabel("x (Radians)")
 plt.ylabel("Cosh(x)")
 plt.title("Cos Hyperbolic Function")
+plt.savefig(file_loc[:-3]+"png")
+plt.savefig(file_loc[:-3]+"pdf")
 plt.show()
 
 

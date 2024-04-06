@@ -1,35 +1,15 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 31.03.2024 23:39:33
-// Design Name: 
-// Module Name: cordic_sinh_cosh_tb
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
-
-module cordic_sinh_cosh_tb;
+module cordic_tanh_tb;
   reg  signed  [31:0] target_angle;
   reg clk,rst;
   wire signed [31:0] x_res;
   wire signed [31:0] y_res;
+  wire signed [31:0] tanh_res;
   
-  cordic_sinh_cosh w(.clk(clk),.rst(rst),.target_angle(target_angle), .x_res(x_res) , .y_res(y_res));
+  cordic_tanh w(.clk(clk),.rst(rst),.target_angle(target_angle), .x_res(x_res) , .y_res(y_res),.tanh_res(tanh_res));
   
-  integer fh_cosh; // Variable for file handle
-  integer fh_sinh; // Variable for file handle
+  integer fh_tanh; // Variable for file handle
   
   always #2 clk = ~clk;
   
@@ -41,10 +21,9 @@ module cordic_sinh_cosh_tb;
      begin
       #0 clk = 1'b0; rst = 1'b0; 
       #1 rst = 1'b1;
-      fh_cosh = $fopen("F:/PhD_IISc/Coursework/Jan_2024/FPGA/FPGA_course_assignments/Mini_Project/Source_Code/Data/cosh_data.txt","w");
-      $fmonitor(fh_cosh,"%b %d",x_res,target_angle);
-      fh_sinh = $fopen("F:/PhD_IISc/Coursework/Jan_2024/FPGA/FPGA_course_assignments/Mini_Project/Source_Code/Data/sinh_data.txt","w");
-      $fmonitor(fh_sinh,"%b %d",y_res,target_angle);
+      fh_tanh = $fopen("F:/PhD_IISc/Coursework/Jan_2024/FPGA/FPGA_course_assignments/Mini_Project/Source_Code/Data/tanh_data.txt","w");
+      $fmonitor(fh_tanh,"%b %d",tanh_res,target_angle);
+      
 //      #5 target_angle = 32'b00000000000000001000100011110101; // 0.535
 //      #5 target_angle = 32'b11111111111111110111011100001011; // -0.535 (2's complement of 0.535)
 //      #5 target_angle = {{14{1'b0}},2'b10,{16{1'b0}}}; // 2
@@ -149,10 +128,9 @@ module cordic_sinh_cosh_tb;
 #15 target_angle = 32'b00000000000000001111010110101000; //0.9595959595959598 radians
 #15 target_angle = 32'b00000000000000001111101011010100; //0.9797979797979799 radians
 #15 target_angle = 32'b00000000000000010000000000000000; //1.0 radians
-#15 target_angle = 32'b00000000000000010000000000000000; //1.0 radians
 
-$fclose(fh_cosh);
-$fclose(fh_sinh);
+$fclose(fh_tanh);
+
 #15 $finish;
      end
 endmodule
