@@ -19,31 +19,88 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+module get_conv_output(quad_loc, x,y,x_res,y_res);
+   input [2:0] quad_loc;
+   input signed [11:0] x,y;
+   output reg signed [11:0] x_res,y_res;
+   
+   // Get the appropraite x result (cos z)
+   always@(*)
+     begin
+        case(quad_loc)
+             1: x_res = x;
+             2: x_res = -y;
+             3: x_res = -x;
+             4: x_res = y;
+       default: x_res = x; // To avoid inferred latch condition
+       endcase
+     end
+     
+   // Get the appropriate y result (sin z)
+   always@(*)
+     begin
+        case(quad_loc)
+             1: y_res = y;
+             2: y_res = x;
+             3: y_res = -y;
+             4: y_res = -x;
+       default: y_res = y;  // To avoid inferring latches
+       endcase
+     end
+endmodule
 
-module cordic_sin_cos_dac(slide_switch,clk,rst,x_res,y_res);
-  input clk, rst;
-  input signed [11:0] slide_switch;
+module get_conv_angle(z_seq,z_conv,quad_loc);
+  input [11:0] z_seq;        // angle MUST NOT be signed
+  output reg [11:0] z_conv;  // angle MUST NOT be signed
+  output reg [2:0] quad_loc; // quadrant location must not be signed
   
-  output reg signed [11:0] x_res;
-  output reg signed [11:0] y_res;
+  // Combinational always block to find out the quadrant in which the target angle is present
+  always@(*)
+    begin
+      if(z_seq >= 0 && z_seq<=1024)          quad_loc = 1;   // Target Angle in First  Quadrant
+      else if(z_seq > 1024 && z_seq <= 2048) quad_loc = 2;   // Target Angle in Second Quadrant
+      else if(z_seq > 2048 && z_seq <= 3072) quad_loc = 3;   // Target Angle in Third  Quadrant
+      else                                   quad_loc = 4;   // Target Angle in Fourth Quadrant
+    end
+ 
+ // Combinational always block to compute the converted target angle 
+  always@(*)
+    begin
+      if      (z_seq >= 0   && z_seq <= 1024) z_conv = z_seq;
+      else if (z_seq > 1024 && z_seq <= 2048) z_conv = z_seq - 1024;
+      else if (z_seq > 2048 && z_seq <= 3072) z_conv = z_seq - 2048;
+      else                                    z_conv = z_seq - 3072;
+    end
+endmodule
+
+module cordic_sin_cos_dac(slide_switch,clk,rst,x_res_seq,y_res_seq);
+  input clk, rst;
+  input [11:0] slide_switch;
+  
+  output reg signed [11:0] x_res_seq; // signed register to hold cosz
+  output reg signed [11:0] y_res_seq; // signed register to hold sinz
+  
+  wire signed [11:0] x_res_wire; // 
+  wire signed [11:0] y_res_wire; // signed register to hold sinz
   
   reg clk1, clk2;
   reg [3:0] clk1_count_comb, clk2_count_comb; // 4 bit registers that will be updated in combinational always block
   reg [3:0] clk1_count_seq,  clk2_count_seq;  // 4 bit registers that will be updated in sequential (clocked) always block 
   
   wire signed[11:0] look_up [8:0]; // 9 arrays, each of 12 bits width to store look up angle
-  reg [11:0] z_comb, z_seq;
+  reg [11:0] z_comb, z_seq; // angle MUST NOT be signed
+  wire[2:0]  quad_loc;   // 3 bit wire to denote the quadrant location (quadrant location must NOT be signed)
   
   reg signed [11:0] x [9:1];  // to store the x-coordinates of each step (3 bits for the integer part including MSB and 9 bits for the fractional part)
   reg signed [11:0] y [9:1];  // to store the y-coordinates of each step (3 bits for the integer part including MSB and 9 bits for the fractional part)
-  reg signed [11:0] z [9:1];  // Array of 12 bit registers to store the rotated angle 
+  reg [11:0] z [9:1];         // Array of 12 bit registers to store the rotated angle (angle MUST NOT be signed)
   reg  d[8:1]; // Array of 1 bit registers to denote the direction of rotation. 1/0 => Anticlockwise / Clockwise rotation 
   
   // The following vector of wires will be driven with the initial values that are required to compute cosz and sinz
   wire signed [11:0] x0; 
   wire signed [11:0] y0;
-  wire signed [11:0] z0;
-  wire signed d0;          
+  wire [11:0] z0;
+  wire  d0;          
     
  always@(posedge clk)
     begin
@@ -81,8 +138,8 @@ always@(posedge clk)
        // Update the result of cosz and sinz at the falling edge of clk1 signal whose frequency is 50MHz
           if (clk1 == 1'b1)
              begin
-                 x_res <= x[9];
-                 y_res <= y[9];
+                 x_res_seq <= x_res_wire;
+                 y_res_seq <= y_res_wire;
              end
        end
   end
@@ -120,12 +177,13 @@ always@(*)
  assign look_up[6] = 10;   // corresponds to 0.89517    degrees
  assign look_up[7] = 5;    // corresponds to 0.447614   degrees
  assign look_up[8] = 3;    // corresponds to 0.2238105  degrees
-  
-  
+ 
+get_conv_angle  guhan(.z_seq(z_seq), .z_conv(z0),.quad_loc(quad_loc));
+get_conv_output hari (.quad_loc(quad_loc), .x(x[9]), .y(y[9]), .x_res(x_res_wire), .y_res(y_res_wire));
+ 
  // Initial values that are required for CORDIC (initialized using Data Flow Style of Modelling)
  assign x0 = 12'b000100110110 ; // x0 = 0.6073 (3 bits for the integer part and 9 bits for the fractional part)
  assign y0 = 12'b000000000000 ; // y0 = 0 (3 bits for the integer part and 9 bits for the fractional part)
- assign z0 = z_seq            ; // 12 bits of the z_seq will drive z0
  assign d0 = 1'b1;  
 
 // Combinational always block to compute cosz and sinz in 10 iterations
