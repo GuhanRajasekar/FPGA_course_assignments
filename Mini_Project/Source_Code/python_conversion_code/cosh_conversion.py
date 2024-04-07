@@ -15,9 +15,15 @@ cosh_values_decimal = cosh_values_decimal/(2**16)
 target_angle = fh[:][1].to_numpy().astype(int)
 target_angle = target_angle/(2**16)
 
+# indices to plot
+# 0, 4,11,18,26,33,40,48,55,58,61,68,76,83,90,98,105,112
+ind_to_plot = [0, 4,11,18,26,33,40,48,55,58,61,68,76,83,90,98,105,112]
+
 plt.figure()
 plt.clf()
+# plt.plot(target_angle[ind_to_plot],cosh_values_decimal[ind_to_plot],'o-')
 plt.plot(target_angle,cosh_values_decimal,'o-')
+plt.plot(np.linspace(target_angle[0],target_angle[-1],100),np.cosh(np.linspace(target_angle[0],target_angle[-1],100)))
 plt.xlabel("x (Radians)")
 plt.ylabel("Cosh(x)")
 plt.title("Cos Hyperbolic Function")
