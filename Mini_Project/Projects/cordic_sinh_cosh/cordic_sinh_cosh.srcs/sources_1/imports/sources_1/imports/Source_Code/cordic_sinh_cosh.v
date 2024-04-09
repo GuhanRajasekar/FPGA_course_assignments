@@ -40,8 +40,8 @@ module cordic_sinh_cosh(clk,rst,target_angle,x_res,y_res);
  reg signed [31:0] y [11:1];  // to store the y-coordinates of each step (4 bits for the integer part including MSB and 16 bits for the fractional part)
  
  wire signed[31:0] look_up [10:1];       // to store look up values of arc tan using 20 bits (16 bits including MSB to denote the integer part and 4 bits to denote the fractional part)
- reg  signed[31:0] z[10:1];  // Array of 20 bit registers to store the rotated angle 
- reg  d[8:1]; // Array of 1 bit registers to denote the direction of rotation. 1/0 => Anticlockwise / Clockwise rotation 
+ reg  signed[31:0] z[11:1];  // Array of 20 bit registers to store the rotated angle 
+ reg  d[11:1]; // Array of 1 bit registers to denote the direction of rotation. 1/0 => Anticlockwise / Clockwise rotation 
 
  
  
