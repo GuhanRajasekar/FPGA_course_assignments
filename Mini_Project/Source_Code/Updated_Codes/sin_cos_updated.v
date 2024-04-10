@@ -83,9 +83,17 @@ module cordic_sin_cos_dac(slide_switch,clk,rst,x_res_seq,y_res_seq);
   wire signed [11:0] x_res_wire; // 
   wire signed [11:0] y_res_wire; // signed register to hold sinz
   
-  reg clk2;
-  reg [3:0] clk2_count_comb; // 4 bit registers that will be updated in combinational always block
-  reg [3:0] clk2_count_seq;  // 4 bit registers that will be updated in sequential (clocked) always block 
+  reg sclk, clk2 , sync;
+  reg [9:0] clk2_count_comb; // 10 bit register that will be updated in combinational always block
+  reg [9:0] sclk_count_comb ; // 10 bit register that wil be  updated in combinational always block
+  reg [9:0] sync_count_comb;
+  
+  
+  reg [9:0] clk2_count_seq;  // 10 bit register that will be updated in sequential (clocked) always block 
+  reg [9:0] sclk_count_seq;  // 10 bit register that will be udpated in sequential (clocked) always block
+  reg [9:0] sync_count_seq;  // 10 bit register that will be udpated in sequential (clocked) always block
+  
+
   
   wire signed [12:0] look_up [8:0]; // 9 arrays, each of 12 bits width to store look up angle
   reg  signed [12:0] z_comb, z_seq; 
@@ -103,25 +111,34 @@ module cordic_sin_cos_dac(slide_switch,clk,rst,x_res_seq,y_res_seq);
   wire signed [11:0] y0;
   wire signed [12:0] z0;
 //  wire  d0;          
-    
- always@(posedge clk , negedge rst)  // Asynchronous reset
+   
+// Clocked always block to update sclk signal
+always@(posedge clk, negedge rst)
+   begin
+     if(rst == 0) sclk_count_seq <= 1'b0;  // Reset the sclk count 
+     else 
+        begin
+          sclk_count_seq <= sclk_count_comb;
+          if(sclk_count_comb == 1) sclk <= 1'b1;  // sclk signal is active
+          else                     sclk <= 1'b0;  // sclk signal is deactivated
+        end
+   end
+
+// Clocked always block to update clk2
+ always@(posedge clk , negedge rst)  // Asclkhronous reset
     begin
-      if(rst == 0)
-         begin
-           clk2_count_seq <= 4'b0000;              // Reset the count value for clk2
-         end 
-     
-      else 
-         begin
-           clk2_count_seq <= clk2_count_comb;  // Update the count value for clk2
-                     
+      if(rst == 0) clk2_count_seq  <= 10'b0;              // Reset the count value for clk2     
+    else 
+       begin
+           clk2_count_seq <= clk2_count_comb;  // Update the count value for clk2                    
            if(clk2_count_comb == 1) clk2 <= 1'b1;
            else                     clk2 <= 1'b0;
          end
     end
 
-// Sequential always block to update the angle value at 20MHz and update the result at 33MHz
-always@(posedge clk , negedge rst)  // Asynchronous reset
+
+// Sequential always block to update the angle value at 1.25MHz
+always@(posedge clk2 , negedge rst)  // Asclkhronous reset
   begin
     if(rst == 1'b0)
        begin
@@ -133,17 +150,42 @@ always@(posedge clk , negedge rst)  // Asynchronous reset
     else 
        begin
        // The updated angle (z_seq)  and the results are computed at the falling edge of clk2 signal whose frequency is 20MHz
-          if (clk2 == 1'b1) 
-             begin
-                if(z_comb < 0) z_seq <= 13'b0;
-                else           z_seq <= z_comb;
-                x_res_seq <= x_res_wire + 12'h800;
-                y_res_seq <= y_res_wire + 12'h800;
-             end
-//             dummy     <= z[9];
+          if(z_comb < 0) z_seq <= 13'b0;
+          else           z_seq <= z_comb;
+          x_res_seq <= x_res_wire + 12'h800;
+          y_res_seq <= y_res_wire + 12'h800;         
        end
   end
 
+
+always@(posedge sclk, negedge rst)
+  begin
+     if(rst == 1'b0) 
+       begin
+          sync <= 1'b1;
+          sync_count_seq <= 1'b0;
+       end
+       
+     else 
+       begin
+          if(clk2 == 1'b1)          sync <= 0;
+          else 
+            begin
+              if(sync_count_seq == 17) sync<= 1;
+              if(sync == 0)  sync_count_seq <= sync_count_comb;
+              else           sync_count_seq <= 0;
+            end
+       end
+  end
+
+   
+always@(*)
+  begin
+     if(sync_count_seq == 17) sync_count_comb = 0;
+     else                     sync_count_comb = sync_count_seq + 1;
+  end
+  
+  
 // 3 clock pulses to generate a clock signal of period 30ns (frequency of 33.33 MHz)
 // This clock (clk2) will be used to compute cosz and sinz value in 10 iterations
 //always@(*)
@@ -152,13 +194,20 @@ always@(posedge clk , negedge rst)  // Asynchronous reset
 //    else                         clk1_count_comb = clk1_count_seq + 1;    
 //  end
 
-// 5 clock pulses to generate a clock signal of period 1ns (frequency of 1MHz)   
+// 80 clock pulses to generate a clock signal of period 80ns (frequency of 1.25MHz)   
 // This clock (clk1) will be used to compute the updated angle value 
 always@(*)
   begin
-    if(clk2_count_seq == 9)      clk2_count_comb = 0;
+    if(clk2_count_seq == 79)     clk2_count_comb = 0;
     else                         clk2_count_comb = clk2_count_seq + 1;  
   end
+
+// 4 clock pulses of 10ns clock will contribute to 1 clock pulse of sclk (clock signal for the DAC)
+always@(*)
+   begin
+    if(sclk_count_seq == 3)      sclk_count_comb = 0;
+    else                         sclk_count_comb = sclk_count_seq + 1;
+   end
 
 // Combinational always block to update the angle
 always@(*) z_comb = z_seq + 1 + slide_switch;  
