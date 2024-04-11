@@ -20,7 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module cordic_tanh(clk,rst,target_angle,x_res,y_res,tanh_res);
+module cordic_tanh(clk,rst,target_angle,tanh_res);
+//module cordic_tanh(clk,rst,target_angle,x_res,y_res,tanh_res);
 
 // Apparently verilog does not support two dimensional arrays as ports (system verilog does)
 // However, let us see if this works for simulation
@@ -29,8 +30,8 @@ module cordic_tanh(clk,rst,target_angle,x_res,y_res,tanh_res);
  input signed [31:0] target_angle;   // 20 bits to denote the target angle of rotation (16 bits including MSB for the integer part and 4 bits for the fractional part)
  
  
- output reg signed [31:0] x_res; // 20 bits (4 for integer part and 16 for fractional part) to store the x-coordinate of the final rotated vector
- output reg signed [31:0] y_res; // 20 bits (4 for integer part and 16 for fractional part) to store the y-coordinate of the final rotated vector
+ reg signed [31:0] x_res; // 20 bits (4 for integer part and 16 for fractional part) to store the x-coordinate of the final rotated vector
+ reg signed [31:0] y_res; // 20 bits (4 for integer part and 16 for fractional part) to store the y-coordinate of the final rotated vector
  output reg signed [31:0] tanh_res; // 20 bits (4 for integer part and 16 for fractional part) to store the y-coordinate of the final rotated vector
 // output reg [31:0] final_rotation_angle; // dummy output register to overcome RTL error 
  
