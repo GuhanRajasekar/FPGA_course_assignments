@@ -68,7 +68,7 @@ module cordic_tan_inverse(clk,rst,y_input,z_res);
  // Place them in a separate always block as they are fixed (This helps us avoid numerous RTL errors)
  always@(*)
    begin
-      x[0] = 20'b1; 
+      x[0] = {16'b0000000000000001,4'b0000}; 
       y[0] = y_input_clk; 
       z[0] = 20'b0; 
       d[0] = ((x[0][19] ^ (y[0][19])) == 0) ? 0 : 1;  
