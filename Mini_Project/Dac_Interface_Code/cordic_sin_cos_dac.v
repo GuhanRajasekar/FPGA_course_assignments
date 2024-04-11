@@ -193,10 +193,10 @@ always@(posedge clk2 , negedge rst)  // Asclkhronous reset
 //    else                         clk1_count_comb = clk1_count_seq + 1;    
 //  end
 
-// 5 clock pulses to generate a clock signal of period 50ns (frequency of 20MHz)   
+// 30 clock pulses to generate a clock signal of period 50ns (frequency of 20MHz)   
 always@(*)
   begin
-    if(clk2_count_seq == 4)     clk2_count_comb = 0;
+    if(clk2_count_seq == 29)     clk2_count_comb = 0;
     else                         clk2_count_comb = clk2_count_seq + 1;  
   end
 
