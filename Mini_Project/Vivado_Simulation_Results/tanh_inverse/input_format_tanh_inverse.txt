@@ -1,0 +1,2 @@
+y(input) => 16 bits for the fractional part and 4 bits for the integer part
+z(output) => tanh inverse (y) = 14 bits for the fractional part and 6 bits for the integer part

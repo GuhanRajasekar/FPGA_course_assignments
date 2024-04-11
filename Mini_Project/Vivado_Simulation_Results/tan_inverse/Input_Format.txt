@@ -1,0 +1,2 @@
+input (y)                        = 16 bits for the integer part and 4 bits for the fractional part
+output (z = tan inverse [y])     = 16 bits for the integer part and 4 bits for the fractional part
