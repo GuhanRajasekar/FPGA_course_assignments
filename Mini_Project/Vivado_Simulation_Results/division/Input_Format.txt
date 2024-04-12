@@ -1,0 +1,6 @@
+x -> 10 bits for the integer part and 10 bits for the fractional part
+y -> 10 bits for the integer part and 10 bits for the fractional part
+z -> 10 bits for the integer part and 10 bits for the fractional part
+
+z converges to (y/x) after 10 - 12 iterations
+CORDIC division can lie only in the range of [-2,2]
