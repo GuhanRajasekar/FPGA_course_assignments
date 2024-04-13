@@ -1,0 +1,5 @@
+// Use this format for the results if you are not showing the waveforms on the oscilloscope and only in Vivado
+
+sin -> 10 bits for the fractional part and 2 bits for the integer part
+cos -> 10 bits for the fractional part and 2 bits for the integer part
+tan -> 10 bits for the fractional part and 2 bits for the integer part
