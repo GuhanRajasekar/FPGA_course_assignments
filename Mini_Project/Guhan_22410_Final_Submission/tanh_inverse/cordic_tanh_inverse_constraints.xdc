@@ -1,0 +1,5 @@
+create_clock -period 32.000 -name clk -waveform {0.000 16.000} [get_ports clk]
+set_input_delay -clock [get_clocks clk] -min -add_delay 0.200 [get_ports {y_input[*]}]
+set_input_delay -clock [get_clocks clk] -max -add_delay 0.200 [get_ports {y_input[*]}]
+set_input_delay -clock [get_clocks clk] -min -add_delay 0.200 [get_ports rst]
+set_input_delay -clock [get_clocks clk] -max -add_delay 0.200 [get_ports rst]
